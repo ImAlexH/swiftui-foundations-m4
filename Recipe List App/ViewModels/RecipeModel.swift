@@ -15,64 +15,68 @@ class RecipeModel: ObservableObject {
         
         // Create an instance of data service and get the data
         self.recipes = DataService.getLocalData()
-        
-        
     }
     
-    static func getPortion(ingredient: Ingredient, recipeServings: Int, targetServings: Int) -> String {
+    static func getPortion(ingredient:Ingredient, recipeServings:Int, targetServings:Int) -> String {
+        
         var portion = ""
         var numerator = ingredient.num ?? 1
         var denominator = ingredient.denom ?? 1
         var wholePortions = 0
         
         if ingredient.num != nil {
-            //Get a single serving size by multiplying denominator by the recipie servings
+            
+            // Get a single serving size by multiplying denominator by the recipe servings
             denominator *= recipeServings
             
-            //Get target portion by multiplying numerator by target servings
+            // Get target portion by multiplying numerator by target servings
             numerator *= targetServings
             
-            //Reduce fraction by GCD
+            // Reduce fraction by greatest common divisor
             let divisor = Rational.greatestCommonDivisor(numerator, denominator)
             numerator /= divisor
             denominator /= divisor
             
-            //Get the whole portions if num is greater than denom
+            // Get the whole portion if numerator > denominator
             if numerator >= denominator {
-                //Calculated whole portions
+                
+                // Calculated whole portions
                 wholePortions = numerator / denominator
                 
-                //Calculate reaminder
+                // Calculate the remainder
                 numerator = numerator % denominator
                 
+                // Assign to portion string
                 portion += String(wholePortions)
             }
             
-            //Express remainder as fraction
+            // Express the remainder as a fraction
             if numerator > 0 {
                 
-                //assign remainder
+                // Assign remainder as fraction to the portion string
                 portion += wholePortions > 0 ? " " : ""
                 portion += "\(numerator)/\(denominator)"
-                
             }
+            
         }
+        
         if var unit = ingredient.unit {
             
-            //If we need to pluralize
+            // If we need to pluralize
             if wholePortions > 1 {
-                //claculate appropriate suffix
+            
+                // Calculate appropriate suffix
                 if unit.suffix(2) == "ch" {
                     unit += "es"
-                } else if unit.suffix(1) == "f" {
+                }
+                else if unit.suffix(1) == "f" {
                     unit = String(unit.dropLast())
                     unit += "ves"
-                } else {
+                }
+                else {
                     unit += "s"
                 }
-                
             }
-            
             
             portion += ingredient.num == nil && ingredient.denom == nil ? "" : " "
             
